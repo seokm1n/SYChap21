@@ -1,7 +1,7 @@
 package mvc.command;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public interface CommandHandler {
 	public String process(HttpServletRequest req, HttpServletResponse res)
