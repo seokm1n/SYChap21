@@ -21,7 +21,6 @@ public class ListArticleHandler implements CommandHandler {
 		ArticlePage articlePage = listService.getArticlePage(pageNo);
 		req.setAttribute("articlePage", articlePage);
 
-//		return "/WEB-INF/view/listArticle.jsp";
 		return "/view/listArticle.jsp";
 	}
 }

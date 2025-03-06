@@ -34,7 +34,7 @@ public class ArticleDao {
 
 			if (insertedCount > 0) {
 				stmt = conn.createStatement();
-				rs = stmt.executeQuery("select last_insert_id() from article");
+				rs = stmt.executeQuery("SELECT article_seq.CURRVAL FROM dual");
 				if (rs.next()) {
 					Integer newNum = rs.getInt(1);
 					return new Article(newNum,
@@ -75,8 +75,8 @@ public class ArticleDao {
 		ResultSet rs = null;
 
 		try {
-			pstmt = conn.prepareStatement("select * from article "
-					+ "order by article_no desc limit ?,?");
+			pstmt = conn.prepareStatement("SELECT * FROM article "
+	                + "ORDER BY article_no DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
 			pstmt.setInt(1, startRow);
 			pstmt.setInt(2, size);
 			rs = pstmt.executeQuery();
@@ -109,5 +109,34 @@ public class ArticleDao {
 
 	private Timestamp toTimestamp(Date date) {
 		return new Timestamp(date.getTime());
+	}
+	
+	public Article selectById(Connection conn, int no) throws SQLException {
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			pstmt = conn.prepareStatement(
+					"select * from article where article_no = ?");
+			pstmt.setInt(1, no);
+			rs = pstmt.executeQuery();
+			Article article = null;
+			if (rs.next()) {
+				article = convertArticle(rs);
+			}
+			return article;
+		} finally {
+			JdbcUtil.close(rs);
+			JdbcUtil.close(pstmt);
+		}
+	}
+	
+	public void increaseReadCount(Connection conn, int no) throws SQLException {
+		try (PreparedStatement pstmt =
+				conn.prepareStatement(
+						"update article set read_cnt = read_cnt + 1"+
+				"where article_no = ?")) {
+			pstmt.setInt(1, no);
+			pstmt.executeUpdate();
+		}
 	}
 }
